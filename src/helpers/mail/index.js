@@ -1,19 +1,17 @@
-const nodemailer = require("nodemailer");
-const mustache = require("mustache");
-const fs = require("fs");
-require("dotenv").config();
+const nodemailer = require('nodemailer');
+const mustache = require('mustache');
+const fs = require('fs');
+require('dotenv').config();
 
 const sendMail = (data) =>
   new Promise((resolve, reject) => {
-    const fileTemplate = fs.readFileSync(
-      `src/templates/email/test.html`,
-      "utf8"
-    );
+    const { to, subject, template } = data;
 
-    const { to, subject } = data;
+    const fileTemplate = fs.readFileSync(`src/templates/email/${template}`, 'utf8');
+
     // https://myaccount.google.com/lesssecureapps?pli=1&rapt=AEjHL4N78ToeMZfGrjVbk-kR95NcXdeZBPjuMIbllyX9vO7Te7z9HXQNo8LA0WUR_ACHHXAg2l4G67dmKBk8loxwQiA_wxRYvQ
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
+      host: 'smtp.gmail.com',
       port: 587,
       secure: false, // true for 465, false for other ports
       auth: {
@@ -22,7 +20,7 @@ const sendMail = (data) =>
       },
     });
     const mailOptions = {
-      from: '"Tickitz 👻" <memo.in.aja@gmail.com>', // sender address
+      from: '"ZWallet 👻" <memo.in.aja@gmail.com>', // sender address
       to: to, // list of receivers
       subject: subject, // Subject line
       // html: `<b>Click Here to activate </b><a href='http://localhost:3001/api/v1/user-activation/${to}'>Click !</>`, // html body

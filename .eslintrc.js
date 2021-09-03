@@ -5,28 +5,28 @@ module.exports = {
     es2021: true,
     node: true,
   },
-  extends: ["airbnb-base", "prettier"],
+  extends: ['airbnb-base', 'prettier'],
   parserOptions: {
     ecmaVersion: 12,
-    sourceType: "module",
+    sourceType: 'module',
   },
-  plugins: ["prettier"],
+  plugins: ['prettier'],
   rules: {
-    "prettier/prettier": "error",
-    semi: "off", // memperbolehkan ;(titik koma) tanpa ada di dalam function
-    radix: "off", // memperbolehkan fungsi parseInt tanpa harus menggunakan argumen/parameter ke 2
-    "func-names": "off", // memperbolehkan pembuatan function bsa menggunakan annon function jdi diperbolehkan tanpa memberi nama
-    "no-console": "off", // memperbolehkan console.log
-    "no-shadow": "off", // penamaan variabel tidak dibatasi
-    "no-unused-vars": [
-      "error",
+    'prettier/prettier': 'error',
+    semi: 'off', // memperbolehkan ;(titik koma) tanpa ada di dalam function
+    radix: 'off', // memperbolehkan fungsi parseInt tanpa harus menggunakan argumen/parameter ke 2
+    'func-names': 'off', // memperbolehkan pembuatan function bsa menggunakan annon function jdi diperbolehkan tanpa memberi nama
+    'no-console': 'warn', // memperbolehkan console.log
+    'no-shadow': 'off', // penamaan variabel tidak dibatasi
+    'no-unused-vars': [
+      'error',
       {
-        args: "none",
+        args: 'none',
       },
     ], // tidak ada pengecekan argumen
-    "consistent-return": "off", // membebaskan pengembalian dari fungsi
-    "no-underscore-dangle": "off", // memperbolehkan underscore di variable
-    "import/no-unresolved": "off", // memperbolehkan require data tanpa harus menggunakan ./
-    "no-unused-expressions": { allowShortCircuit: true, allowTernary: true }, // memperbolehkan ternary operator
+    'consistent-return': 'off', // membebaskan pengembalian dari fungsi
+    'no-underscore-dangle': 'off', // memperbolehkan underscore di variable
+    'import/no-unresolved': 'off', // memperbolehkan require data tanpa harus menggunakan ./
+    'no-unused-expressions': { allowShortCircuit: true, allowTernary: true }, // memperbolehkan ternary operator
   },
 };

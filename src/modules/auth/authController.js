@@ -1,52 +1,71 @@
-const redis = require("@src/config/redis");
-const helper = require("@src/helpers/wrapper");
-const authModel = require("@modules/auth/authModel");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-require("dotenv").config();
+const redis = require('@src/config/redis');
+const helper = require('@src/helpers/wrapper');
+const authModel = require('@modules/auth/authModel');
+const sendMail = require('@src/helpers/mail');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const expToken = (day) => {
   return day * 24 * 60 * 60;
 };
 
+const generateKey = (n) => {
+  var add = 1,
+    max = 12 - add;
+
+  if (n > max) {
+    return generate(max) + generate(n - max);
+  }
+
+  max = Math.pow(10, n + add);
+  var min = max / 10;
+  var number = Math.floor(Math.random() * (max - min + 1)) + min;
+
+  return ('' + number).substring(add);
+};
+
 module.exports = {
-  sayHello: async (req, res) => {
-    try {
-      res.status(200).send("Hello World");
-    } catch (error) {
-      return helper.response(
-        res,
-        400,
-        `Bad Request${error.message ? " (" + error.message + ")" : ""}`,
-        null
-      );
-    }
-  },
   register: async (req, res) => {
     try {
-      const { password } = req.body;
+      const { firstName, email, password, linkDirect } = req.body;
+      const { URL_BACKEND } = process.env;
       const salt = bcrypt.genSaltSync(10);
       const encryptPassword = bcrypt.hashSync(password, salt);
-
-      // console.log(`before Encrypt = ${password}`);
-      // console.log(`after Encrypt = ${encryptPassword}`);
+      const keys = generateKey(6);
 
       const setData = {
         ...req.body,
         password: encryptPassword,
+        keysVerifyAccount: keys,
+        status: 0,
       };
 
-      // kondisi cek email apakah ada di dalam database ?
-      // jika ada response gagal msg = email sudah pernah di daftarkan
-      // jika tidak ada = menjalankan proses model register user
+      delete setData.linkDirect;
+
+      const checkUser = await authModel.getDataConditions({ email });
+      if (checkUser.length >= 1) {
+        return helper.response(res, 400, 'Email already exist', null);
+      }
+
+      const setSendEmail = {
+        to: email,
+        subject: `Email Verification !`,
+        name: firstName,
+        buttonUrl: `${URL_BACKEND}/verify/${keys}`,
+        template: 'emailVerification.html',
+      };
+      await sendMail(setSendEmail);
+
       const result = await authModel.register(setData);
       delete result.password;
-      return helper.response(res, 200, "Success Register User", result);
+      delete result.keysVerifyAccount;
+      return helper.response(res, 200, 'Success register user', result);
     } catch (error) {
       return helper.response(
         res,
         400,
-        `Bad Request${error.message ? " (" + error.message + ")" : ""}`,
+        `Bad Request${error.message ? ' (' + error.message + ')' : ''}`,
         null
       );
     }
@@ -57,51 +76,36 @@ module.exports = {
       const checkEmailUser = await authModel.getDataConditions({
         email,
       });
-      // console.log(checkEmailUser)
-      // proses 1 pengecekkan apakah email ada di database atau tidak ?
-      if (checkEmailUser.length > 0) {
-        // proses 2 pengecekan password apakah password yang dimasukkan sesuai atau tidak
-        const checkPassword = bcrypt.compareSync(
-          password,
-          checkEmailUser[0].password
-        );
-        if (checkPassword) {
-          const payload = checkEmailUser[0];
-          delete payload.password;
-          const token = jwt.sign({ ...payload }, "RAHASIA", {
-            expiresIn: expToken(1),
-          });
-          redis.setex(`accessToken:${token}`, expToken(1), token);
-          res.cookie("accessToken", token, {
-            httpOnly: true,
-            expToken: expToken(1) * 1000,
-          });
-          // REFRESH TOKEN
-          const refreshToken = jwt.sign({ ...payload }, "RAHASIA", {
-            expiresIn: expToken(2),
-          });
-          redis.setex(
-            `refreshToken:${refreshToken}`,
-            expToken(2),
-            JSON.stringify({
-              id: checkEmailUser[0].id,
-              token,
-            })
-          );
-          // END REFRESH TOKEN
-          const result = { ...payload, token, refreshToken };
-          return helper.response(res, 200, "Success login !", result);
-        } else {
-          return helper.response(res, 400, "Wrong password !");
-        }
-      } else {
-        return helper.response(res, 404, "Email / Account not registed");
+
+      if (checkEmailUser.length < 1) {
+        return helper.response(res, 404, 'Email / Account not registed');
       }
+
+      if (checkEmailUser[0].status === 0) {
+        return helper.response(res, 400, 'Account not active');
+      }
+
+      const checkPassword = bcrypt.compareSync(password, checkEmailUser[0].password);
+      if (!checkPassword) {
+        return helper.response(res, 400, 'Wrong password !');
+      }
+
+      const payload = checkEmailUser[0];
+      delete payload.password;
+      delete payload.keysChangePassword;
+      delete payload.keysVerifyAccount;
+      delete payload.minuteDiff;
+      const token = jwt.sign({ ...payload }, 'RAHASIA', {
+        expiresIn: expToken(1),
+      });
+      redis.setex(`accessToken:${token}`, expToken(1), token);
+      const result = { ...payload, token };
+      return helper.response(res, 200, 'Success login !', result);
     } catch (error) {
       return helper.response(
         res,
         400,
-        `Bad Request${error.message ? " (" + error.message + ")" : ""}`,
+        `Bad Request${error.message ? ' (' + error.message + ')' : ''}`,
         null
       );
     }
@@ -109,85 +113,130 @@ module.exports = {
   logout: async (req, res) => {
     try {
       let token = req.headers.authorization;
-      token = token.split(" ")[1];
-      const { refreshToken } = req.body;
-      redis.del(`accessToken:${token}`);
-      res.cookie("accessToken", "", { expToken: 1 });
-      // REFRESH TOKEN
-      redis.del(`refreshToken:${refreshToken}`);
-      // END REFRESH TOKEN
-      return helper.response(res, 200, "Success logout !", null);
+      if (token) {
+        token = token.split(' ')[1];
+        redis.del(`accessToken:${token}`);
+      }
+      return helper.response(res, 200, 'Success logout !', null);
     } catch (error) {
       return helper.response(
         res,
         400,
-        `Bad Request${error.message ? " (" + error.message + ")" : ""}`,
+        `Bad Request${error.message ? ' (' + error.message + ')' : ''}`,
         null
       );
     }
   },
-  // REFRESH TOKEN
-  refreshToken: async (req, res) => {
+  forgotPassword: async (req, res) => {
     try {
-      const { id, refreshToken } = req.body;
-      redis.get(`refreshToken:${refreshToken}`, (error, result) => {
-        if (!error && result != null) {
-          const data = JSON.parse(result);
-          const previousToken = data.token;
-          if (parseInt(id) !== parseInt(data.id)) {
-            return helper.response(
-              res,
-              403,
-              "Your token is wrong please login again !"
-            );
-          }
-          jwt.verify(refreshToken, "RAHASIA", (error, result) => {
-            if (
-              (error && error.name === "JsonWebTokenError") ||
-              (error && error.name === "TokenExpiredError")
-            ) {
-              return helper.response(res, 403, error.message);
-            } else {
-              delete result.iat;
-              delete result.exp;
-              const token = jwt.sign(result, "RAHASIA", {
-                expiresIn: expToken(1),
-              });
-              redis.del(`accessToken:${previousToken}`);
-              redis.setex(`accessToken:${token}`, expToken(1), token);
-              redis.setex(
-                `refreshToken:${refreshToken}`,
-                expToken(1),
-                JSON.stringify({
-                  id,
-                  token,
-                })
-              );
-              const newResult = { ...result, token, refreshToken };
-              return helper.response(
-                res,
-                200,
-                "Success Refresh Token !",
-                newResult
-              );
-            }
-          });
-        } else {
-          return helper.response(
-            res,
-            403,
-            "Your token is expired please login again !"
-          );
-        }
-      });
+      const { email, linkDirect } = req.body;
+      const keysChangePassword = generateKey(6);
+
+      const checkUser = await authModel.getDataConditions({ email });
+      if (checkUser.length < 1) {
+        return helper.response(res, 400, 'Email / Account not registed', null);
+      }
+
+      await authModel.updateDataUser(
+        { keysChangePassword, updatedAt: new Date() },
+        checkUser[0].id
+      );
+
+      const setSendEmail = {
+        to: email,
+        subject: `Reset Password !`,
+        name: checkUser[0].firstName,
+        buttonUrl: `${linkDirect}/${keysChangePassword}`,
+        template: 'forgotPassword.html',
+      };
+      await sendMail(setSendEmail);
+
+      return helper.response(res, 200, 'Process success, please check your email !', email);
     } catch (error) {
       return helper.response(
         res,
         400,
-        `Bad Request${error.message ? " (" + error.message + ")" : ""}`,
+        `Bad Request${error.message ? ' (' + error.message + ')' : ''}`,
         null
       );
     }
   },
-  // END REFRESH TOKEN
+  resetPassword: async (req, res) => {
+    try {
+      const { keysChangePassword, newPassword, confirmPassword } = req.body;
+
+      if (newPassword !== confirmPassword) {
+        return helper.response(res, 400, 'Password not same', null);
+      }
+
+      const checkUser = await authModel.getDataConditions({ keysChangePassword });
+      if (checkUser.length < 1) {
+        return helper.response(
+          res,
+          400,
+          'Your keys is not valid, please repeat step forgot password',
+          null
+        );
+      }
+
+      const { id, minuteDiff } = checkUser[0];
+      if (minuteDiff < -5) {
+        await authModel.updateDataUser({ keysChangePassword: null, updatedAt: new Date() }, id);
+        return helper.response(
+          res,
+          400,
+          'Your keys is expired, please repeat step forgot password',
+          null
+        );
+      }
+
+      const salt = bcrypt.genSaltSync(10);
+      const encryptPassword = bcrypt.hashSync(newPassword, salt);
+
+      await authModel.updateDataUser(
+        { keysChangePassword: null, password: encryptPassword, updatedAt: new Date() },
+        id
+      );
+      return helper.response(res, 200, 'Success change password', id);
+    } catch (error) {
+      return helper.response(
+        res,
+        400,
+        `Bad Request${error.message ? ' (' + error.message + ')' : ''}`,
+        null
+      );
+    }
+  },
+  verify: async (req, res) => {
+    try {
+      const { keys } = req.params;
+      if (!keys) {
+        return helper.response(res, 400, 'Please input you keys!', null);
+      }
+
+      const checkUser = await authModel.getDataConditions({ keysVerifyAccount: keys });
+      if (checkUser.length < 1) {
+        return helper.response(
+          res,
+          400,
+          'Your keys is not valid, please check your email again',
+          null
+        );
+      }
+
+      await authModel.updateDataUser(
+        { keysVerifyAccount: null, status: 1, updatedAt: new Date() },
+        checkUser[0].id
+      );
+
+      return helper.response(res, 200, 'Success verify account, please login', null);
+    } catch (error) {
+      return helper.response(
+        res,
+        400,
+        `Bad Request${error.message ? ' (' + error.message + ')' : ''}`,
+        null
+      );
+    }
+  },
 };
