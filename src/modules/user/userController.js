@@ -4,6 +4,34 @@ const deleteFile = require('@src/helpers/file/delete');
 const bcrypt = require('bcrypt');
 
 module.exports = {
+  getDataUser: async (req, res) => {
+    try {
+      let { page, limit, search, sort } = req.query;
+      page = page ? parseInt(page) : 1;
+      limit = limit ? parseInt(limit) : 6;
+      search = search ? search : '';
+      sort = sort ? sort : 'id ASC';
+
+      const totalData = await userModel.getDataCount(search);
+      const totalPage = Math.ceil(totalData / limit);
+      const offset = page * limit - limit;
+      const pageInfo = {
+        page,
+        totalPage,
+        limit,
+        totalData,
+      };
+      const result = await userModel.getDataAll(limit, offset, search, sort);
+      return helper.response(res, 200, 'Success get data', result, pageInfo);
+    } catch (error) {
+      return helper.response(
+        res,
+        400,
+        `Bad Request${error.message ? ' (' + error.message + ')' : ''}`,
+        null
+      );
+    }
+  },
   getDataUserById: async (req, res) => {
     try {
       const { id } = req.params;
