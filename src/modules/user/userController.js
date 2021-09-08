@@ -113,7 +113,10 @@ module.exports = {
         return helper.response(res, 404, 'Id user not found', null);
       }
 
-      let { noTelp, email, pin, image, password, status } = req.body;
+      let { noTelp, email, pin, image, password, status, amount } = req.body;
+      if (amount) {
+        delete req.body.amount;
+      }
       if (email) {
         return helper.response(res, 400, 'Cannot update email', null);
       }

@@ -28,11 +28,15 @@ const generateKey = (n) => {
 module.exports = {
   register: async (req, res) => {
     try {
-      const { firstName, email, password, linkDirect } = req.body;
+      const { firstName, email, password, amount } = req.body;
       const { URL_BACKEND } = process.env;
       const salt = bcrypt.genSaltSync(10);
       const encryptPassword = bcrypt.hashSync(password, salt);
       const keys = generateKey(6);
+
+      if (amount) {
+        delete req.body.amount;
+      }
 
       const setData = {
         ...req.body,
@@ -40,8 +44,6 @@ module.exports = {
         keysVerifyAccount: keys,
         status: 0,
       };
-
-      delete setData.linkDirect;
 
       const checkUser = await authModel.getDataConditions({ email });
       if (checkUser.length >= 1) {

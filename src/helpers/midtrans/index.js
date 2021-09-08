@@ -1,8 +1,8 @@
-const midtransClient = require("midtrans-client");
-require("dotenv").config();
+const midtransClient = require('midtrans-client');
+require('dotenv').config();
 
 const snap = new midtransClient.Snap({
-  isProduction: process.env.MT_PRODUCTION === "true" ? true : false,
+  isProduction: process.env.MT_PRODUCTION === 'true' ? true : false,
   serverKey: process.env.MT_SERVER_KEY,
   clientKey: process.env.MT_CLIENT_KEY,
 });
@@ -22,10 +22,6 @@ module.exports = {
       snap
         .createTransaction(parameter)
         .then((transaction) => {
-          // transaction token
-          const transactionToken = transaction.token;
-          console.log("transaction:", transaction);
-          console.log("transactionToken:", transactionToken);
           resolve(transaction.redirect_url);
         })
         .catch((error) => {

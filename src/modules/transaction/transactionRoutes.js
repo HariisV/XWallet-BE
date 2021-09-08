@@ -1,9 +1,9 @@
-const express = require("express");
+const express = require('express');
 const Route = express.Router();
 
-const transactionController = require("@modules/transaction/transactionController");
+const transactionController = require('@modules/transaction/transactionController');
 
-Route.post("/", transactionController.postTransaction);
-Route.post("/midtrans-notification", transactionController.postMidtransNotif);
+Route.post('/top-up', transactionController.postTransaction);
+Route.post('/midtrans-notification', transactionController.postMidtransNotif);
 
 module.exports = Route;
