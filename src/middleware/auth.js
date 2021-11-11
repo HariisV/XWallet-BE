@@ -10,7 +10,7 @@ module.exports = {
     }
     token = token.split(' ')[1];
 
-    jwt.verify(token, 'RAHASIA', (error, result) => {
+    jwt.verify(token, 'RAHASIA', (error, resultToken) => {
       if (
         (error && error.name === 'JsonWebTokenError') ||
         (error && error.name === 'TokenExpiredError')
@@ -19,7 +19,7 @@ module.exports = {
       } else {
         redis.get(`accessToken:${token}`, (error, result) => {
           if (!error && result != null) {
-            req.decodeToken = result;
+            req.decodeToken = resultToken;
             next();
           } else {
             return helper.response(res, 403, 'Your token is destroyed please login again !');

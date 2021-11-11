@@ -1,77 +1,84 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <style>
-          .card {
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-            max-width: 300px;
-            margin: auto;
-            text-align: center;
-            font-family: arial;
-          }
+  <head>
+    <style>
+      body {
+        font-family: arial;
+      }
 
-          .title {
-            color: grey;
-            font-size: 18px;
-          }
+      .header {
+        text-align: center;
+      }
 
-          button {
-            border: none;
-            outline: 0;
-            display: inline-block;
-            padding: 8px;
-            color: white;
-            background-color: #000;
-            text-align: center;
-            cursor: pointer;
-            width: 100%;
-            font-size: 18px;
-          }
+      .card {
+        box-shadow: -1px 4px 15px 0 rgba(0, 0, 0, 0.5);
+        max-width: 500px;
+        margin: auto;
+        padding: 12px;
+        margin-bottom: 15px;
+        border-radius: 10px;
+      }
 
-          a {
-            text-decoration: none;
-            font-size: 22px;
-            color: black;
-          }
+      .card-header {
+        color: #7a7886;
+        font-size: 16px;
+      }
 
-          button:hover, a:hover {
-            opacity: 0.7;
-          }
-        table {
-            border-collapse: collapse;
-        }
-        table, th, td {
-            border: 1px solid black;
-        }
-        </style>
-    </head>
-    <body>
-      <h2 style="text-align:center">User Profile Card</h2>
+      .card-title {
+        color: #514f5b;
+        font-size: 15px;
+        margin-top: 5px;
+        font-weight: bold;
+      }
 
-        <div class="card">
-          <img src="http://localhost:5000/profile.jpg" alt="John" style="width:100%">
-          <h1><%= result.senderName %></h1>
-          <p class="title">CEO & Founder, Example</p>
-          <p>Harvard University</p>
-          <div style="margin: 24px 0;">
-            <a href="#"><i class="fa fa-dribbble"></i></a> 
-            <a href="#"><i class="fa fa-twitter"></i></a>  
-            <a href="#"><i class="fa fa-linkedin"></i></a>  
-            <a href="#"><i class="fa fa-facebook"></i></a> 
-          </div>
-          <p><button>Contact</button></p>
+      .card-content {
+        margin-top: 5px;
+        /* display: flex;
+        align-items: center; */
+      }
+
+      .card-image {
+        width: 50px;
+        height: 50px;
+        box-shadow: -1px 3px 5px 0 rgba(0, 0, 0, 0.3);
+        border-radius: 20px;
+        margin-right: 10px;
+        object-fit: cover;
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <img src="http://localhost:3001/uploads/checklist.png" alt="John" style="width: 10%" />
+      <h2>Transfer Success</h2>
+    </div>
+    <div class="card">
+      <div class="card-header">Amount</div>
+      <div class="card-title"><%= result.balance %></div>
+    </div>
+    <div class="card">
+      <div class="card-header">Balance Left</div>
+      <div class="card-title"><%= result.amount %></div>
+    </div>
+    <div class="card">
+      <div class="card-header">Date & Time</div>
+      <div class="card-title"><%= result.createdAt %></div>
+    </div>
+    <div class="card">
+      <div class="card-header">Notes</div>
+      <div class="card-title"><%= result.notes %></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><b>Transfer to</b></div>
+      <div class="card-content">
+        <img src="<%= result.image %>" alt="John" class="card-image" />
+        <div>
+          <div class="card-title"><%= result.fullName %></div>
+          <div class="card-title"><%= result.noTelp %></div>
         </div>
-        <div style="width: 85%; margin: 0 7.5%;">
-            <div style="text-align: center; padding-left: 50px;">            
-                <h3>Student Report</h5>
-                <table>
-                <% if (result.students.length > 0) { %>
-                    <% result.students.forEach(student => {%>
-                       <tr><td><%= student.name %></td><td><%= student.email %></td><td><%= student.city %></td><td><%=student.country %></td></tr>
-                    <%  });%>
-                <% }%>
-                </table>
-             </div>
-        </div>
-    </body>
+      </div>
+    </div>
+    <h5 class="header">&copy; Copyright 2021, Zwallet</h5>
+  </body>
 </html>

@@ -1,10 +1,12 @@
+require('dotenv').config();
 const redis = require('@src/config/redis');
 const helper = require('@src/helpers/wrapper');
 const authModel = require('@modules/auth/authModel');
 const sendMail = require('@src/helpers/mail');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 const expToken = (day) => {
   return day * 24 * 60 * 60;
@@ -28,18 +30,18 @@ const generateKey = (n) => {
 module.exports = {
   register: async (req, res) => {
     try {
-      const { firstName, email, password, amount } = req.body;
+      const id = uuidv4();
+      const { firstName, lastName, email, password } = req.body;
       const { URL_BACKEND } = process.env;
       const salt = bcrypt.genSaltSync(10);
       const encryptPassword = bcrypt.hashSync(password, salt);
       const keys = generateKey(6);
 
-      if (amount) {
-        delete req.body.amount;
-      }
-
       const setData = {
-        ...req.body,
+        id,
+        firstName,
+        lastName,
+        email,
         password: encryptPassword,
         keysVerifyAccount: keys,
         status: 0,
@@ -47,6 +49,15 @@ module.exports = {
 
       const checkUser = await authModel.getDataConditions({ email });
       if (checkUser.length >= 1) {
+        console.log(checkUser);
+        if (checkUser[0].status === 0) {
+          return helper.response(
+            res,
+            400,
+            'You have registered with this email please activate the email',
+            null
+          );
+        }
         return helper.response(res, 400, 'Email already exist', null);
       }
 
@@ -54,15 +65,13 @@ module.exports = {
         to: email,
         subject: `Email Verification !`,
         name: firstName,
-        buttonUrl: `${URL_BACKEND}/verify/${keys}`,
+        buttonUrl: `${URL_BACKEND}/auth/verify/${keys}`,
         template: 'emailVerification.html',
       };
       await sendMail(setSendEmail);
 
       const result = await authModel.register(setData);
-      delete result.password;
-      delete result.keysVerifyAccount;
-      return helper.response(res, 200, 'Success register user', result);
+      return helper.response(res, 200, 'Success register user', { id: result.id });
     } catch (error) {
       return helper.response(
         res,
@@ -89,7 +98,7 @@ module.exports = {
 
       const checkPassword = bcrypt.compareSync(password, checkEmailUser[0].password);
       if (!checkPassword) {
-        return helper.response(res, 400, 'Wrong password !');
+        return helper.response(res, 400, 'Wrong password');
       }
 
       const payload = checkEmailUser[0];
@@ -101,8 +110,8 @@ module.exports = {
         expiresIn: expToken(1),
       });
       redis.setex(`accessToken:${token}`, expToken(1), token);
-      const result = { ...payload, token };
-      return helper.response(res, 200, 'Success login !', result);
+      const result = { id: payload.id, pin: payload.pin, token };
+      return helper.response(res, 200, 'Success login', result);
     } catch (error) {
       return helper.response(
         res,
@@ -167,10 +176,6 @@ module.exports = {
     try {
       const { keysChangePassword, newPassword, confirmPassword } = req.body;
 
-      if (newPassword !== confirmPassword) {
-        return helper.response(res, 400, 'Password not same', null);
-      }
-
       const checkUser = await authModel.getDataConditions({ keysChangePassword });
       if (checkUser.length < 1) {
         return helper.response(
@@ -192,6 +197,10 @@ module.exports = {
         );
       }
 
+      if (newPassword !== confirmPassword) {
+        return helper.response(res, 400, 'Password not same', null);
+      }
+
       const salt = bcrypt.genSaltSync(10);
       const encryptPassword = bcrypt.hashSync(newPassword, salt);
 
@@ -199,7 +208,7 @@ module.exports = {
         { keysChangePassword: null, password: encryptPassword, updatedAt: new Date() },
         id
       );
-      return helper.response(res, 200, 'Success change password', id);
+      return helper.response(res, 200, 'Success change password', { id });
     } catch (error) {
       return helper.response(
         res,
@@ -218,12 +227,7 @@ module.exports = {
 
       const checkUser = await authModel.getDataConditions({ keysVerifyAccount: keys });
       if (checkUser.length < 1) {
-        return helper.response(
-          res,
-          400,
-          'Your keys is not valid, please check your email again',
-          null
-        );
+        return res.sendFile(path.resolve('./public/views/verify-failed.html'));
       }
 
       await authModel.updateDataUser(
@@ -231,7 +235,7 @@ module.exports = {
         checkUser[0].id
       );
 
-      return helper.response(res, 200, 'Success verify account, please login', null);
+      return res.sendFile(path.resolve('./public/views/verify-success.html'));
     } catch (error) {
       return helper.response(
         res,

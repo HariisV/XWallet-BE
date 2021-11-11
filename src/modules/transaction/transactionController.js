@@ -1,5 +1,6 @@
 const helper = require('@src/helpers/wrapper');
 const transactionModel = require('@modules/transaction/transactionModel');
+const userModel = require('@modules/user/userModel');
 const midtrans = require('@src/helpers/midtrans');
 const { v4: uuidv4 } = require('uuid');
 
@@ -7,7 +8,8 @@ module.exports = {
   postTransaction: async (req, res) => {
     try {
       const id = uuidv4();
-      const { userId, amount } = req.body;
+      const userId = req.decodeToken.id;
+      const { amount } = req.body;
 
       const setData = {
         id,
@@ -23,7 +25,7 @@ module.exports = {
         amount,
       };
       const resultMidtrans = await midtrans.post(topupData);
-      return helper.response(res, 200, 'Success TopUp Please Confirm ...', {
+      return helper.response(res, 200, 'Please pay topup', {
         redirectUrl: resultMidtrans,
       });
     } catch (error) {
@@ -45,28 +47,22 @@ module.exports = {
         return helper.response(res, 404, 'Data not found', null);
       }
 
-      const { id, amount, topupAmount } = getData[0];
+      const { id, balance, topupAmount } = getData[0];
       if (transactionStatus == 'capture') {
-        // capture only applies to card transaction, which you need to check for the fraudStatus
         if (fraudStatus == 'challenge') {
           await transactionModel.updateStatusTopup(
             { status: 'failed', updatedAt: new Date() },
             orderId
           );
-          // TODO set transaction status on your databaase to 'challenge'
         } else if (fraudStatus == 'accept') {
           await transactionModel.updateStatusTopup(
             { status: 'success', updatedAt: new Date() },
             orderId
           );
           await transactionModel.updateAmountUser(
-            { amount: parseInt(amount) + parseInt(topupAmount), updatedAt: new Date() },
+            { balance: parseInt(balance) + parseInt(topupAmount), updatedAt: new Date() },
             id
           );
-          // TODO set transaction status on your databaase to 'success'
-          // [1] MENJALANKAN MODEL UNTUK GET DATA DARI TABLE BALANCE SUPAYA MENDAPATKAN USERID & TOPUPAMOUNT BERDASARKAN TOPUPID(ORDERID)
-          // [2] MENJALANKAN MODEL UNTUK MENGUPDATE STATUS TOPUP BERDASARKAN TOPUPID(ORDERID)
-          // [3] MENJALANKAN MODEL UNTUK MENGUPDATE DATA BALANCE
         }
       } else if (transactionStatus == 'settlement') {
         await transactionModel.updateStatusTopup(
@@ -74,37 +70,150 @@ module.exports = {
           orderId
         );
         await transactionModel.updateAmountUser(
-          { amount: parseInt(amount) + parseInt(topupAmount), updatedAt: new Date() },
+          { balance: parseInt(balance) + parseInt(topupAmount), updatedAt: new Date() },
           id
         );
-        // TODO set transaction status on your databaase to 'success'
-        // [1] MENJALANKAN MODEL UNTUK GET DATA DARI TABLE BALANCE SUPAYA MENDAPATKAN USERID & TOPUPAMOUNT BERDASARKAN TOPUPID(ORDERID)
-        // [2] MENJALANKAN MODEL UNTUK MENGUPDATE STATUS TOPUP BERDASARKAN TOPUPID(ORDERID)
-        // [3] MENJALANKAN MODEL UNTUK MENGUPDATE DATA BALANCE
-        // await updateBalance(userId, topupAmount)
       } else if (transactionStatus == 'deny') {
         await transactionModel.updateStatusTopup(
           { status: 'failed', updatedAt: new Date() },
           orderId
         );
-        // TODO you can ignore 'deny', because most of the time it allows payment retries
-        // and later can become success
       } else if (transactionStatus == 'cancel' || transactionStatus == 'expire') {
         await transactionModel.updateStatusTopup(
           { status: 'failed', updatedAt: new Date() },
           orderId
         );
-        // TODO set transaction status on your databaase to 'failure'
-        // [2] MENJALANKAN MODEL UNTUK MENGUPDATE STATUS TOPUP BERDASARKAN TOPUPID(ORDERID)
       } else if (transactionStatus == 'pending') {
         await transactionModel.updateStatusTopup(
           { status: 'failed', updatedAt: new Date() },
           orderId
         );
-        // TODO set transaction status on your databaase to 'pending' / waiting payment
-        // [2] MENJALANKAN MODEL UNTUK MENGUPDATE STATUS TOPUP BERDASARKAN TOPUPID(ORDERID)
       }
       return helper.response(res, 200, 'Success', null);
+    } catch (error) {
+      return helper.response(
+        res,
+        400,
+        `Bad Request${error.message ? ' (' + error.message + ')' : ''}`,
+        null
+      );
+    }
+  },
+  transferTransaction: async (req, res) => {
+    try {
+      const id = uuidv4();
+      const senderId = req.decodeToken.id;
+      let { receiverId, amount, notes } = req.body;
+      amount = Number(amount);
+      if (!amount || amount <= 1000) {
+        return helper.response(res, 400, 'Please input amount > 1000 type of number', null);
+      }
+      if (senderId === receiverId) {
+        return helper.response(res, 400, 'Cannot transfer to personal account', null);
+      }
+      const dataSender = await userModel.getDataConditions({ id: senderId });
+      const dataReceiver = await userModel.getDataConditions({ id: receiverId });
+      if (dataSender.length < 1) {
+        return helper.response(res, 404, 'Id user sender not found', null);
+      }
+      if (dataReceiver.length < 1) {
+        return helper.response(res, 404, 'Id user receiver not found', null);
+      }
+      if (dataSender[0].balance < amount) {
+        return helper.response(res, 400, 'Not enough balance', null);
+      }
+
+      const setData = {
+        id,
+        senderId,
+        receiverId,
+        amount,
+        notes,
+      };
+
+      const result = await transactionModel.addTransferHistory(setData);
+
+      // PROCESS ADD BALANCE TO SENDER AND RECEIVER
+      const balanceSender = dataSender[0].balance - amount;
+      const balanceReceiver = dataReceiver[0].balance + amount;
+      await transactionModel.updateAmountUser(
+        { balance: balanceSender, updatedAt: new Date() },
+        senderId
+      );
+      await transactionModel.updateAmountUser(
+        { balance: balanceReceiver, updatedAt: new Date() },
+        receiverId
+      );
+      // END PROCESS ADD BALANCE TO SENDER AND RECEIVER
+
+      await transactionModel.updateTransferHistory(
+        { status: 'success', updatedAt: new Date() },
+        result.id
+      );
+
+      return helper.response(res, 200, 'Success transfer', { ...result, status: 'success' });
+    } catch (error) {
+      return helper.response(
+        res,
+        400,
+        `Bad Request${error.message ? ' (' + error.message + ')' : ''}`,
+        null
+      );
+    }
+  },
+  historyTransaction: async (req, res) => {
+    try {
+      const { id } = req.decodeToken;
+      let { page, limit, filter } = req.query;
+      page = parseInt(page);
+      limit = parseInt(limit);
+      filter = filter ? filter.toUpperCase() : 'YEAR';
+      const listFilter = ['WEEK', 'MONTH', 'YEAR'];
+      if (!listFilter.includes(filter)) {
+        return helper.response(res, 400, 'Filter tidak tersedia', null);
+      }
+
+      const result = await transactionModel.getHistoryTransaction(id, filter);
+
+      let [topup, accept, send] = result;
+      topup = topup.map((item) => {
+        return { ...item, fullName: `${item.firstName} ${item.lastName}`, type: 'topup' };
+      });
+      accept = accept.map((item) => {
+        return { ...item, fullName: `${item.firstName} ${item.lastName}`, type: 'accept' };
+      });
+      send = send.map((item) => {
+        return { ...item, fullName: `${item.firstName} ${item.lastName}`, type: 'send' };
+      });
+
+      let newResult = [...topup, ...accept, ...send];
+      newResult = newResult.sort((a, b) => {
+        if (a.createdAt < b.createdAt) {
+          return -1;
+        }
+        if (a.createdAt > b.createdAt) {
+          return 1;
+        }
+        return 0;
+      });
+
+      const totalData = newResult.length;
+      const totalPage = Math.ceil(totalData / limit);
+      const offset = page * limit - limit;
+      const pageInfo = {
+        page,
+        totalPage,
+        limit,
+        totalData,
+      };
+
+      return helper.response(
+        res,
+        200,
+        'Success Get Data',
+        newResult.slice(offset, offset + limit),
+        pageInfo
+      );
     } catch (error) {
       return helper.response(
         res,

@@ -6,13 +6,14 @@ const bcrypt = require('bcrypt');
 module.exports = {
   getDataUser: async (req, res) => {
     try {
+      const { id } = req.decodeToken;
       let { page, limit, search, sort } = req.query;
       page = page ? parseInt(page) : 1;
       limit = limit ? parseInt(limit) : 6;
       search = search ? search : '';
       sort = sort ? sort : 'id ASC';
 
-      const totalData = await userModel.getDataCount(search);
+      const totalData = await userModel.getDataCount(search, id);
       const totalPage = Math.ceil(totalData / limit);
       const offset = page * limit - limit;
       const pageInfo = {
@@ -21,7 +22,7 @@ module.exports = {
         limit,
         totalData,
       };
-      const result = await userModel.getDataAll(limit, offset, search, sort);
+      const result = await userModel.getDataAll(limit, offset, search, sort, id);
       return helper.response(res, 200, 'Success get data', result, pageInfo);
     } catch (error) {
       return helper.response(
@@ -80,9 +81,10 @@ module.exports = {
   },
   checkPinUser: async (req, res) => {
     try {
-      const { id, pin } = req.query;
+      const { id } = req.decodeToken;
+      const { pin } = req.query;
 
-      if (!id || !pin) {
+      if (!pin) {
         return helper.response(res, 400, 'Id or Pin must be filled', null);
       }
 
@@ -91,11 +93,16 @@ module.exports = {
         return helper.response(res, 404, 'Id user not found', null);
       }
 
-      if (pin !== checkUser[0].pin) {
+      if (!checkUser[0].pin) {
+        return helper.response(res, 400, 'Please set your pin', null);
+      }
+
+      const checkPin = bcrypt.compareSync(pin, checkUser[0].pin);
+      if (!checkPin) {
         return helper.response(res, 400, 'Wrong pin', null);
       }
 
-      return helper.response(res, 200, 'Success check pin', { id });
+      return helper.response(res, 200, 'Correct pin', { id });
     } catch (error) {
       return helper.response(
         res,
@@ -113,9 +120,9 @@ module.exports = {
         return helper.response(res, 404, 'Id user not found', null);
       }
 
-      let { noTelp, email, pin, image, password, status, amount } = req.body;
-      if (amount) {
-        delete req.body.amount;
+      let { noTelp, email, pin, image, password, status, balance } = req.body;
+      if (balance) {
+        delete req.body.balance;
       }
       if (email) {
         return helper.response(res, 400, 'Cannot update email', null);
@@ -175,7 +182,10 @@ module.exports = {
         return helper.response(res, 400, 'Length pin 6 number', null);
       }
 
-      await userModel.updateDataUser({ pin, updatedAt: new Date() }, id);
+      const salt = bcrypt.genSaltSync(10);
+      const encryptPin = bcrypt.hashSync(`${pin}`, salt);
+
+      await userModel.updateDataUser({ pin: encryptPin, updatedAt: new Date() }, id);
 
       return helper.response(res, 200, 'Success update pin user', { id });
     } catch (error) {
@@ -214,6 +224,30 @@ module.exports = {
       );
 
       return helper.response(res, 200, 'Success update password', { id });
+    } catch (error) {
+      return helper.response(
+        res,
+        400,
+        `Bad Request${error.message ? ' (' + error.message + ')' : ''}`,
+        null
+      );
+    }
+  },
+  deleteImage: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const checkUser = await userModel.getDataConditions({ id });
+      if (checkUser.length < 1) {
+        return helper.response(res, 404, 'Id user not found', null);
+      }
+
+      await userModel.updateDataUser({ image: null, updatedAt: new Date() }, id);
+
+      if (checkUser[0].image) {
+        deleteFile(checkUser[0].image);
+      }
+
+      return helper.response(res, 200, 'Success delete image', { id });
     } catch (error) {
       return helper.response(
         res,

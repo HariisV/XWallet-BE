@@ -1,21 +1,22 @@
 const connection = require('@src/config/mysql');
 
 module.exports = {
-  getDataCount: (data) => {
+  getDataCount: (data, id) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT COUNT(*) AS total FROM user WHERE firstName LIKE '%${data}%' OR lastName LIKE '%${data}%' OR noTelp LIKE '%${data}%'`,
+        `SELECT COUNT(*) AS total FROM user WHERE NOT id = ? AND (firstName LIKE '%${data}%' OR lastName LIKE '%${data}%' OR noTelp LIKE '%${data}%')`,
+        [id],
         (error, result) => {
           !error ? resolve(result[0].total) : reject(new Error('SQL : ' + error.sqlMessage));
         }
       );
     });
   },
-  getDataAll: (limit, offset, search, sort) =>
+  getDataAll: (limit, offset, search, sort, id) =>
     new Promise((resolve, reject) => {
       connection.query(
-        `SELECT id, firstName, lastName, noTelp, image FROM user WHERE firstName LIKE '%${search}%' OR lastName LIKE '%${search}%' OR noTelp LIKE '%${search}%' ORDER BY ${sort} LIMIT ? OFFSET ?`,
-        [limit, offset],
+        `SELECT id, firstName, lastName, noTelp, image FROM user WHERE NOT id = ? AND (firstName LIKE '%${search}%' OR lastName LIKE '%${search}%' OR noTelp) LIKE '%${search}%' ORDER BY ${sort} LIMIT ? OFFSET ?`,
+        [id, limit, offset],
         (error, result) => {
           !error ? resolve(result) : reject(new Error('SQL : ' + error.sqlMessage));
         }
@@ -24,7 +25,7 @@ module.exports = {
   getDataConditions: (data) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT id, firstName, lastName, email, image, noTelp FROM user WHERE ?',
+        'SELECT id, firstName, lastName, email, image, noTelp, balance FROM user WHERE ?',
         data,
         (error, result) => {
           !error ? resolve(result) : reject(new Error('SQL : ' + error.sqlMessage));

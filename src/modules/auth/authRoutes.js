@@ -9,6 +9,6 @@ Route.post('/logout', authController.logout);
 
 Route.post('/forgot-password', authController.forgotPassword);
 Route.patch('/reset-password', authController.resetPassword);
-Route.patch('/verify/:keys', authController.verify);
+Route.get('/verify/:keys', authController.verify);
 
 module.exports = Route;
