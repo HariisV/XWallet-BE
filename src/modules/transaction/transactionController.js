@@ -86,7 +86,7 @@ module.exports = {
         );
       } else if (transactionStatus === 'pending') {
         await transactionModel.updateStatusTopup(
-          { status: 'failed', updatedAt: new Date() },
+          { status: 'pending', updatedAt: new Date() },
           orderId
         );
       }
