@@ -40,9 +40,10 @@ module.exports = {
   postMidtransNotif: async (req, res) => {
     try {
       const resultMidtrans = await midtrans.notif(req.body);
+      console.log(resultMidtrans);
       const { orderId, transactionStatus, fraudStatus } = resultMidtrans;
       const getData = await transactionModel.getDataTopup(orderId);
-
+      console.log(getData);
       if (getData.length < 1) {
         return helper.response(res, 404, 'Data not found', null);
       }
