@@ -34,7 +34,7 @@ module.exports = {
   getListIncomeTopup: (id) =>
     new Promise((resolve, reject) => {
       connection.query(
-        `SELECT SUM(amount) AS total, createdAt AS date FROM topup WHERE userId = ? AND YEARWEEK(createdAt) = YEARWEEK(NOW()) GROUP BY userId AND DATE(createdAt)`,
+        `SELECT SUM(amount) AS total, MAX(createdAt) AS date FROM topup WHERE userId = ? AND YEARWEEK(createdAt) = YEARWEEK(NOW()) GROUP BY userId AND DATE(createdAt)`,
         id,
         (error, result) => {
           !error ? resolve(result) : reject(new Error('SQL : ' + error.sqlMessage));
@@ -44,7 +44,7 @@ module.exports = {
   getListIncomeTransfer: (id) =>
     new Promise((resolve, reject) => {
       connection.query(
-        `SELECT SUM(amount) AS total, createdAt AS date FROM transfer WHERE receiverId = ? AND YEARWEEK(createdAt) = YEARWEEK(NOW()) GROUP BY receiverId AND DATE(createdAt)`,
+        `SELECT SUM(amount) AS total, MAX(createdAt) AS date FROM transfer WHERE receiverId = ? AND YEARWEEK(createdAt) = YEARWEEK(NOW()) GROUP BY receiverId AND DATE(createdAt)`,
         id,
         (error, result) => {
           !error ? resolve(result) : reject(new Error('SQL : ' + error.sqlMessage));
@@ -54,7 +54,7 @@ module.exports = {
   getListExpenseTransfer: (id) =>
     new Promise((resolve, reject) => {
       connection.query(
-        `SELECT SUM(amount) AS total, createdAt AS date FROM transfer WHERE senderId = ? AND YEARWEEK(createdAt) = YEARWEEK(NOW()) GROUP BY senderId AND DATE(createdAt)`,
+        `SELECT SUM(amount) AS total, MAX(createdAt) AS date FROM transfer WHERE senderId = ? AND YEARWEEK(createdAt) = YEARWEEK(NOW()) GROUP BY senderId AND DATE(createdAt)`,
         id,
         (error, result) => {
           !error ? resolve(result) : reject(new Error('SQL : ' + error.sqlMessage));
