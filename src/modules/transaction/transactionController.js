@@ -49,13 +49,13 @@ module.exports = {
       }
 
       const { id, balance, topupAmount } = getData[0];
-      if (transactionStatus == 'capture') {
-        if (fraudStatus == 'challenge') {
+      if (transactionStatus === 'capture') {
+        if (fraudStatus === 'challenge') {
           await transactionModel.updateStatusTopup(
             { status: 'failed', updatedAt: new Date() },
             orderId
           );
-        } else if (fraudStatus == 'accept') {
+        } else if (fraudStatus === 'accept') {
           await transactionModel.updateStatusTopup(
             { status: 'success', updatedAt: new Date() },
             orderId
@@ -65,7 +65,7 @@ module.exports = {
             id
           );
         }
-      } else if (transactionStatus == 'settlement') {
+      } else if (transactionStatus === 'settlement') {
         await transactionModel.updateStatusTopup(
           { status: 'success', updatedAt: new Date() },
           orderId
@@ -74,17 +74,17 @@ module.exports = {
           { balance: parseInt(balance) + parseInt(topupAmount), updatedAt: new Date() },
           id
         );
-      } else if (transactionStatus == 'deny') {
+      } else if (transactionStatus === 'deny') {
         await transactionModel.updateStatusTopup(
           { status: 'failed', updatedAt: new Date() },
           orderId
         );
-      } else if (transactionStatus == 'cancel' || transactionStatus == 'expire') {
+      } else if (transactionStatus === 'cancel' || transactionStatus === 'expire') {
         await transactionModel.updateStatusTopup(
           { status: 'failed', updatedAt: new Date() },
           orderId
         );
-      } else if (transactionStatus == 'pending') {
+      } else if (transactionStatus === 'pending') {
         await transactionModel.updateStatusTopup(
           { status: 'failed', updatedAt: new Date() },
           orderId
