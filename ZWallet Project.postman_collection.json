@@ -90,9 +90,9 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{dev}}/auth/logout",
+							"raw": "{{local}}/auth/logout",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"auth",
@@ -163,9 +163,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{dev}}/auth/reset-password",
+							"raw": "{{local}}/auth/reset-password",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"auth",
@@ -181,9 +181,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{dev}}/auth/verify/968357",
+							"raw": "{{local}}/auth/verify/968357",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"auth",
@@ -242,9 +242,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{dev}}/user/profile/460dbd41-5918-4f41-ba23-6bdd082bd95a",
+							"raw": "{{local}}/user/profile/460dbd41-5918-4f41-ba23-6bdd082bd95a",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"user",
@@ -261,9 +261,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{dev}}/user/pin?pin=654321",
+							"raw": "{{local}}/user/pin?pin=654321",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"user",
@@ -300,9 +300,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{dev}}/user/profile/460dbd41-5918-4f41-ba23-6bdd082bd95a",
+							"raw": "{{local}}/user/profile/460dbd41-5918-4f41-ba23-6bdd082bd95a",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"user",
@@ -329,9 +329,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{dev}}/user/profile/460dbd41-5918-4f41-ba23-6bdd082bd95a",
+							"raw": "{{local}}/user/profile/460dbd41-5918-4f41-ba23-6bdd082bd95a",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"user",
@@ -358,9 +358,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{dev}}/user/image/460dbd41-5918-4f41-ba23-6bdd082bd95a",
+							"raw": "{{local}}/user/image/460dbd41-5918-4f41-ba23-6bdd082bd95a",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"user",
@@ -387,9 +387,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{dev}}/user/pin/460dbd41-5918-4f41-ba23-6bdd082bd95a",
+							"raw": "{{local}}/user/pin/460dbd41-5918-4f41-ba23-6bdd082bd95a",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"user",
@@ -426,9 +426,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{dev}}/user/password/460dbd41-5918-4f41-ba23-6bdd082bd95a",
+							"raw": "{{local}}/user/password/460dbd41-5918-4f41-ba23-6bdd082bd95a",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"user",
@@ -445,9 +445,9 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{dev}}/user/image/460dbd41-5918-4f41-ba23-6bdd082bd95a",
+							"raw": "{{local}}/user/image/460dbd41-5918-4f41-ba23-6bdd082bd95a",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"user",
@@ -479,9 +479,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{dev}}/transaction/top-up",
+							"raw": "{{local}}/transaction/top-up",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"transaction",
@@ -507,9 +507,9 @@
 							"raw": "{\n  \"transaction_time\": \"2021-11-15 21:36:19\",\n  \"transaction_status\": \"settlement\",\n  \"transaction_id\": \"a2c15c80-a3bc-4b8f-86a6-b0f68836c2b6\",\n  \"status_message\": \"midtrans payment notification\",\n  \"status_code\": \"200\",\n  \"signature_key\": \"1582e7a95bcc7ad7f8cffdf9ec6f8231df681e9345aad354998ab0ff828b0c787b5b2787e4f391fbaaf27d597d274412bae98a2ba1c96419c068bbf907a3349c\",\n  \"settlement_time\": \"2021-11-15 21:36:24\",\n  \"payment_type\": \"bca_klikpay\",\n  \"order_id\": \"561a6847-1b98-4534-9830-0308590b2930\",\n  \"merchant_id\": \"G042642950\",\n  \"gross_amount\": \"20000.00\",\n  \"fraud_status\": \"accept\",\n  \"currency\": \"IDR\",\n  \"approval_code\": \"112233\"\n}"
 						},
 						"url": {
-							"raw": "{{dev}}/transaction/midtrans-notification",
+							"raw": "{{local}}/transaction/midtrans-notification",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"transaction",
@@ -550,9 +550,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{dev}}/transaction/transfer",
+							"raw": "{{local}}/transaction/transfer",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"transaction",
@@ -573,9 +573,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{dev}}/dashboard/d41d5e77-a802-4cc2-882d-be32b6ae06d3",
+							"raw": "{{local}}/dashboard/d41d5e77-a802-4cc2-882d-be32b6ae06d3",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"dashboard",
@@ -596,9 +596,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{dev}}/transaction/history?page=2&limit=2&filter=MONTH",
+							"raw": "{{local}}/transaction/history?page=2&limit=2&filter=MONTH",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"transaction",
@@ -634,9 +634,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{dev}}/export/transaction/84c4c14e-75c4-40ab-9b14-32d0196ddf05",
+							"raw": "{{local}}/export/transaction/84c4c14e-75c4-40ab-9b14-32d0196ddf05",
 							"host": [
-								"{{dev}}"
+								"{{local}}"
 							],
 							"path": [
 								"export",
