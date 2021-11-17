@@ -1,0 +1,683 @@
+{
+	"info": {
+		"_postman_id": "ea210dce-2623-40f1-925b-91c3867ce11c",
+		"name": "ZWallet Project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "firstName",
+									"value": "Bagus",
+									"type": "text"
+								},
+								{
+									"key": "lastName",
+									"value": "TH",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "bagustri15@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local}}/auth/register",
+							"host": [
+								"{{local}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "bagustri15@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local}}/auth/login",
+							"host": [
+								"{{local}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{dev}}/auth/logout",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "bagustri15@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "linkDirect",
+									"value": "http://localhost:3000/reset-password",
+									"description": "link dari page ubah password yang dimana nanti dari email yg dikirim ketika di klik akan ke page tsb",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local}}/auth/forgot-password",
+							"host": [
+								"{{local}}"
+							],
+							"path": [
+								"auth",
+								"forgot-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "keysChangePassword",
+									"value": "018312",
+									"description": "diambil dari url",
+									"type": "text"
+								},
+								{
+									"key": "newPassword",
+									"value": "1234",
+									"type": "text"
+								},
+								{
+									"key": "confirmPassword",
+									"value": "1234",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{dev}}/auth/reset-password",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"auth",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{dev}}/auth/verify/968357",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"auth",
+								"verify",
+								"968357"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get Data User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{local}}/user?page=1&limit=50&search=&sort=firstName ASC",
+							"host": [
+								"{{local}}"
+							],
+							"path": [
+								"user"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "50"
+								},
+								{
+									"key": "search",
+									"value": "",
+									"description": "bisa search berdasarkan firstName | lastName | noTelp"
+								},
+								{
+									"key": "sort",
+									"value": "firstName ASC",
+									"description": "bisa sort berdasarkan firstName ASC/DESC | noTelp ASC/DESC"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Data User By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{dev}}/user/profile/460dbd41-5918-4f41-ba23-6bdd082bd95a",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"user",
+								"profile",
+								"460dbd41-5918-4f41-ba23-6bdd082bd95a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check Pin User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{dev}}/user/pin?pin=654321",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"user",
+								"pin"
+							],
+							"query": [
+								{
+									"key": "pin",
+									"value": "654321"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile User",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "firstName",
+									"value": "Tri",
+									"type": "text"
+								},
+								{
+									"key": "lastName",
+									"value": "Harjanto",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{dev}}/user/profile/460dbd41-5918-4f41-ba23-6bdd082bd95a",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"user",
+								"profile",
+								"460dbd41-5918-4f41-ba23-6bdd082bd95a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update No Telp User",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "noTelp",
+									"value": "085155070887",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{dev}}/user/profile/460dbd41-5918-4f41-ba23-6bdd082bd95a",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"user",
+								"profile",
+								"460dbd41-5918-4f41-ba23-6bdd082bd95a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Image User",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{dev}}/user/image/460dbd41-5918-4f41-ba23-6bdd082bd95a",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"user",
+								"image",
+								"460dbd41-5918-4f41-ba23-6bdd082bd95a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Pin User",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "pin",
+									"value": "654321",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{dev}}/user/pin/460dbd41-5918-4f41-ba23-6bdd082bd95a",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"user",
+								"pin",
+								"460dbd41-5918-4f41-ba23-6bdd082bd95a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Password User",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "oldPassword",
+									"value": "1234",
+									"type": "text"
+								},
+								{
+									"key": "newPassword",
+									"value": "123",
+									"type": "text"
+								},
+								{
+									"key": "confirmPassword",
+									"value": "123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{dev}}/user/password/460dbd41-5918-4f41-ba23-6bdd082bd95a",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"user",
+								"password",
+								"460dbd41-5918-4f41-ba23-6bdd082bd95a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Image By Id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{dev}}/user/image/460dbd41-5918-4f41-ba23-6bdd082bd95a",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"user",
+								"image",
+								"460dbd41-5918-4f41-ba23-6bdd082bd95a"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Top Up",
+			"item": [
+				{
+					"name": "Topup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "amount",
+									"value": "5000",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{dev}}/transaction/top-up",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"transaction",
+								"top-up"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Midtrans Notification",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"transaction_time\": \"2021-11-15 21:36:19\",\n  \"transaction_status\": \"settlement\",\n  \"transaction_id\": \"a2c15c80-a3bc-4b8f-86a6-b0f68836c2b6\",\n  \"status_message\": \"midtrans payment notification\",\n  \"status_code\": \"200\",\n  \"signature_key\": \"1582e7a95bcc7ad7f8cffdf9ec6f8231df681e9345aad354998ab0ff828b0c787b5b2787e4f391fbaaf27d597d274412bae98a2ba1c96419c068bbf907a3349c\",\n  \"settlement_time\": \"2021-11-15 21:36:24\",\n  \"payment_type\": \"bca_klikpay\",\n  \"order_id\": \"561a6847-1b98-4534-9830-0308590b2930\",\n  \"merchant_id\": \"G042642950\",\n  \"gross_amount\": \"20000.00\",\n  \"fraud_status\": \"accept\",\n  \"currency\": \"IDR\",\n  \"approval_code\": \"112233\"\n}"
+						},
+						"url": {
+							"raw": "{{dev}}/transaction/midtrans-notification",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"transaction",
+								"midtrans-notification"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transfer",
+			"item": [
+				{
+					"name": "Transfer Balance",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "receiverId",
+									"value": "42000b5a-776f-4279-b864-c00cd0f3864a",
+									"type": "text"
+								},
+								{
+									"key": "amount",
+									"value": "30000",
+									"type": "text"
+								},
+								{
+									"key": "notes",
+									"value": "Pembayaran Pajak",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{dev}}/transaction/transfer",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"transaction",
+								"transfer"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Dashboard",
+			"item": [
+				{
+					"name": "Get Data Dashboard by User Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{dev}}/dashboard/d41d5e77-a802-4cc2-882d-be32b6ae06d3",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"dashboard",
+								"d41d5e77-a802-4cc2-882d-be32b6ae06d3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "History",
+			"item": [
+				{
+					"name": "History Transaction",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{dev}}/transaction/history?page=2&limit=2&filter=MONTH",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"transaction",
+								"history"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "2"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								},
+								{
+									"key": "filter",
+									"value": "MONTH",
+									"description": "WEEK | MONTH | YEAR"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Export",
+			"item": [
+				{
+					"name": "Export Transaction",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{dev}}/export/transaction/84c4c14e-75c4-40ab-9b14-32d0196ddf05",
+							"host": [
+								"{{dev}}"
+							],
+							"path": [
+								"export",
+								"transaction",
+								"84c4c14e-75c4-40ab-9b14-32d0196ddf05"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ0MWQ1ZTc3LWE4MDItNGNjMi04ODJkLWJlMzJiNmFlMDZkMyIsImZpcnN0TmFtZSI6IkJhZ3VzIiwibGFzdE5hbWUiOiIiLCJub1RlbHAiOm51bGwsImltYWdlIjpudWxsLCJiYWxhbmNlIjo1MDAwLCJlbWFpbCI6ImJhZ3VzdHJpMTVAZ21haWwuY29tIiwicGluIjoiJDJiJDEwJE5GOFEyUmpsT0JhTGRQczNWRm1raHVISEQwSFBwNHlKd3NZRThSN3IuNzFYLmRVczNBaGw2Iiwic3RhdHVzIjoxLCJjcmVhdGVkQXQiOiIyMDIxLTEwLTI3VDE0OjMyOjQ2LjAwMFoiLCJ1cGRhdGVkQXQiOiIyMDIxLTExLTE1VDE1OjU2OjU2LjAwMFoiLCJpYXQiOjE2MzcxMzYxNDIsImV4cCI6MTYzNzIyMjU0Mn0.opZIObVnYVxpzRkr_ftCCFKRWwu32tgAP75wmNvNQWg",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
