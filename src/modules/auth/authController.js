@@ -49,7 +49,6 @@ module.exports = {
 
       const checkUser = await authModel.getDataConditions({ email });
       if (checkUser.length >= 1) {
-        console.log(checkUser);
         if (checkUser[0].status === 0) {
           return helper.response(
             res,

@@ -15,7 +15,7 @@ module.exports = {
   getDataAll: (limit, offset, search, sort, id) =>
     new Promise((resolve, reject) => {
       connection.query(
-        `SELECT id, firstName, lastName, noTelp, image FROM user WHERE NOT id = ? AND (firstName LIKE '%${search}%' OR lastName LIKE '%${search}%' OR noTelp) LIKE '%${search}%' ORDER BY ${sort} LIMIT ? OFFSET ?`,
+        `SELECT id, firstName, lastName, noTelp, image FROM user WHERE NOT id = ? AND (firstName LIKE '%${search}%' OR lastName LIKE '%${search}%' OR noTelp LIKE '%${search}%') ORDER BY ${sort} LIMIT ? OFFSET ?`,
         [id, limit, offset],
         (error, result) => {
           !error ? resolve(result) : reject(new Error('SQL : ' + error.sqlMessage));

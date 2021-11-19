@@ -25,7 +25,6 @@ module.exports = {
           resolve(transaction.redirect_url);
         })
         .catch((error) => {
-          console.log(error);
           reject(error);
         });
     }),
@@ -35,11 +34,7 @@ module.exports = {
         const orderId = statusResponse.order_id;
         const transactionStatus = statusResponse.transaction_status;
         const fraudStatus = statusResponse.fraud_status;
-        // console.log(statusResponse);
 
-        // console.log(
-        //   `Transaction notification received. Order ID: ${orderId}. Transaction status: ${transactionStatus}. Fraud status: ${fraudStatus}`
-        // );
         resolve({ orderId, transactionStatus, fraudStatus });
       });
     }),

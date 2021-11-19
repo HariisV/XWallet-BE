@@ -8,5 +8,10 @@ Route.post('/top-up', authMiddleware.authentication, transactionController.postT
 Route.post('/midtrans-notification', transactionController.postMidtransNotif);
 Route.post('/transfer', authMiddleware.authentication, transactionController.transferTransaction);
 Route.get('/history', authMiddleware.authentication, transactionController.historyTransaction);
+Route.get(
+  '/history/:id',
+  authMiddleware.authentication,
+  transactionController.historyTransactionById
+);
 
 module.exports = Route;

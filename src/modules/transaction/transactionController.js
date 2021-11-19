@@ -40,10 +40,8 @@ module.exports = {
   postMidtransNotif: async (req, res) => {
     try {
       const resultMidtrans = await midtrans.notif(req.body);
-      console.log(resultMidtrans);
       const { orderId, transactionStatus, fraudStatus } = resultMidtrans;
       const getData = await transactionModel.getDataTopup(orderId);
-      console.log(getData);
       if (getData.length < 1) {
         return helper.response(res, 404, 'Data not found', null);
       }
@@ -215,6 +213,33 @@ module.exports = {
         newResult.slice(offset, offset + limit),
         pageInfo
       );
+    } catch (error) {
+      return helper.response(
+        res,
+        400,
+        `Bad Request${error.message ? ' (' + error.message + ')' : ''}`,
+        null
+      );
+    }
+  },
+  historyTransactionById: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.decodeToken.id;
+      const resultTopUp = await transactionModel.getTopupById(id);
+      const resultTransferSender = await transactionModel.getTransferByIdSender(id, userId);
+      const resultTransferReceiver = await transactionModel.getTransferByIdReceiver(id, userId);
+
+      if (resultTopUp.length > 0) {
+        return helper.response(res, 200, 'Success Get Data', resultTopUp);
+      }
+      if (resultTransferSender.length > 0) {
+        return helper.response(res, 200, 'Success Get Data', resultTransferSender);
+      }
+      if (resultTransferReceiver.length > 0) {
+        return helper.response(res, 200, 'Success Get Data', resultTransferReceiver);
+      }
+      return helper.response(res, 404, 'Data Not Found', []);
     } catch (error) {
       return helper.response(
         res,
