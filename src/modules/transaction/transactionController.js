@@ -226,18 +226,25 @@ module.exports = {
     try {
       const { id } = req.params;
       const userId = req.decodeToken.id;
-      const resultTopUp = await transactionModel.getTopupById(id);
-      const resultTransferSender = await transactionModel.getTransferByIdSender(id, userId);
-      const resultTransferReceiver = await transactionModel.getTransferByIdReceiver(id, userId);
-
+      let resultTopUp = await transactionModel.getTopupById(id);
+      let resultTransferSender = await transactionModel.getTransferByIdSender(id, userId);
+      let resultTransferReceiver = await transactionModel.getTransferByIdReceiver(id, userId);
       if (resultTopUp.length > 0) {
-        return helper.response(res, 200, 'Success Get Data', resultTopUp);
+        resultTopUp = { ...resultTopUp[0], types: 'topup' };
+        return helper.response(res, 200, 'Success Get Data TOPUP', resultTopUp);
       }
       if (resultTransferSender.length > 0) {
-        return helper.response(res, 200, 'Success Get Data', resultTransferSender);
+        resultTransferSender = { ...resultTransferSender[0], types: 'send' };
+        return helper.response(res, 200, 'Success Get Data TRANSFER', resultTransferSender);
       }
       if (resultTransferReceiver.length > 0) {
-        return helper.response(res, 200, 'Success Get Data', resultTransferReceiver);
+        resultTransferReceiver = { ...resultTransferReceiver[0], types: 'accept' };
+        return helper.response(
+          res,
+          200,
+          'Success Get Data NERIMA TERANSER',
+          resultTransferReceiver
+        );
       }
       return helper.response(res, 404, 'Data Not Found', []);
     } catch (error) {

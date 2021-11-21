@@ -101,24 +101,26 @@ module.exports = {
   },
   getTransferByIdSender: (id, userId) => {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `SELECT u.firstName, u.image, u.lastName, t.id, t.amount, t.status, t.createdAt FROM transfer AS t JOIN user AS u ON t.senderId = u.id WHERE t.id = ? AND t.senderId = ? `,
+      const pp = connection.query(
+        `SELECT u.firstName, u.image, u.lastName, t.id, t.amount, t.status, t.createdAt,t.receiverId,t.notes FROM transfer AS t JOIN user AS u ON t.senderId = u.id WHERE t.id = ? AND t.senderId = ? `,
         [id, userId],
         (error, result) => {
           !error ? resolve(result) : reject(new Error('SQL : ' + error.sqlMessage));
         }
       );
+      console.log(pp.sql);
     });
   },
   getTransferByIdReceiver: (id, userId) => {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `SELECT u.firstName, u.image, u.lastName, t.id, t.amount, t.status, t.createdAt FROM transfer AS t JOIN user AS u ON t.receiverId = u.id WHERE t.id = ? AND t.receiverId = ? `,
+      const pp = connection.query(
+        `SELECT u.firstName, u.image, u.lastName, t.id, t.amount, t.status, t.createdAt,t.receiverId,t.notes,t.senderId FROM transfer AS t JOIN user AS u ON t.receiverId = u.id WHERE t.id = ? AND t.receiverId = ? `,
         [id, userId],
         (error, result) => {
           !error ? resolve(result) : reject(new Error('SQL : ' + error.sqlMessage));
         }
       );
+      console.log(pp.sql);
     });
   },
   getTopupById: (id) => {
