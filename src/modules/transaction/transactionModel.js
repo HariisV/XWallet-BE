@@ -108,7 +108,6 @@ module.exports = {
           !error ? resolve(result) : reject(new Error('SQL : ' + error.sqlMessage));
         }
       );
-      console.log(pp.sql);
     });
   },
   getTransferByIdReceiver: (id, userId) => {
@@ -120,7 +119,6 @@ module.exports = {
           !error ? resolve(result) : reject(new Error('SQL : ' + error.sqlMessage));
         }
       );
-      console.log(pp.sql);
     });
   },
   getTopupById: (id) => {
